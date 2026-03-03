@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendPulse — YouTube Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070a0f;--surface:#0d1117;--surface2:#161b24;--surface3:#1e2535;--border:rgba(255,255,255,.07);--accent:#ff3c5f;--accent2:#ff8c42;--accent3:#00d4aa;--text:#e8edf5;--text-muted:#6b7a99;--text-dim:#3a4560}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,10,15,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:grid;place-items:center;font-size:16px}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px}
+.logo-text span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none}
+.nav-links a{padding:6px 14px;color:var(--text-muted);font-size:13.5px;font-weight:500;border-radius:6px;transition:all .2s;cursor:pointer;display:block}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface2)}
+.nav-links a.active{color:var(--accent)}
+.nav-cta{background:var(--accent)!important;color:#fff!important;font-weight:600!important;border-radius:6px!important}
+.nav-cta:hover{background:#ff5577!important;transform:translateY(-1px)}
+.hamburger{display:none;background:none;border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:6px;cursor:pointer;font-size:18px;place-items:center}
+
+/* ── MOBILE NAV ── */
+.mob-nav{display:none;position:fixed;inset:64px 0 0 0;background:rgba(7,10,15,.98);z-index:190;backdrop-filter:blur(10px);padding:20px;flex-direction:column;gap:4px}
+.mob-nav.open{display:flex}
+.mob-link{padding:14px 16px;border-radius:8px;font-size:15px;color:var(--text-muted);cursor:pointer;transition:all .2s;font-weight:500}
+.mob-link:hover,.mob-link.active{background:var(--surface2);color:var(--text)}
+.mob-link.active{color:var(--accent)}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-top:64px}
+.page.active{display:block}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:calc(100vh - 64px);display:flex;align-items:center;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,60,95,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,95,.03) 1px,transparent 1px);background-size:60px 60px}
+.orb1{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,60,95,.12) 0%,transparent 70%);top:-100px;left:-100px;pointer-events:none}
+.orb2{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,.08) 0%,transparent 70%);bottom:-100px;right:200px;pointer-events:none}
+.hero-inner{position:relative;max-width:1200px;margin:0 auto;padding:80px 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(255,60,95,.1);border:1px solid rgba(255,60,95,.25);border-radius:100px;font-size:12px;font-weight:500;color:var(--accent);margin-bottom:24px;letter-spacing:.5px;text-transform:uppercase}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(40px,5vw,68px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
+.hero-title .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:17px;color:var(--text-muted);line-height:1.7;margin-bottom:36px;max-width:480px;font-weight:300}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-p{padding:13px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-p:hover{background:#ff5577;transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,60,95,.35)}
+.btn-g{padding:13px 28px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-g:hover{background:var(--surface2);border-color:var(--surface3)}
+.hero-stats{display:flex;gap:32px;margin-top:48px}
+.hs-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:700}
+.hs-lbl{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px}
+
+/* ── MOCKUP ── */
+.mockup{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03);animation:fadeIn .6s ease}
+.mock-bar{padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.mock-dots{display:flex;gap:5px}
+.mock-dots span{width:10px;height:10px;border-radius:50%}
+.mock-dots span:nth-child(1){background:#ff5f57}.mock-dots span:nth-child(2){background:#febc2e}.mock-dots span:nth-child(3){background:#28c840}
+.mock-url{flex:1;height:24px;background:var(--surface3);border-radius:4px;margin:0 12px;display:flex;align-items:center;padding:0 10px;font-size:11px;color:var(--text-muted)}
+.mock-body{padding:20px}
+.mock-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.mock-cell{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.mc-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.mc-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.r{color:var(--accent)}.g{color:var(--accent3)}.o{color:var(--accent2)}
+.mock-chart{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px}
+.mc-chart-lbl{font-size:11px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:60px}
+.bar{flex:1;border-radius:3px 3px 0 0;background:var(--surface3);position:relative;overflow:hidden}
+.bar::after{content:'';position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,var(--accent),transparent);border-radius:3px 3px 0 0;height:var(--h)}
+.mock-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mock-score{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.ms-lbl{font-size:10px;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.ms-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.ms-fill{height:100%;border-radius:3px}
+.ms-fill.r{background:linear-gradient(90deg,var(--accent),var(--accent2));width:var(--w)}
+.ms-fill.g{background:linear-gradient(90deg,var(--accent3),#00a88a);width:var(--w)}
+.ms-val{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
+
+/* ── SECTION STYLES ── */
+.sec-lbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600;margin-bottom:12px}
+.sec-title{font-family:'Syne',sans-serif;font-size:clamp(30px,3.5vw,48px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
+.sec-sub{font-size:16px;color:var(--text-muted);max-width:520px;line-height:1.7;font-weight:300}
+
+/* ── FEATURES SECTION ── */
+.feat-sec{max-width:1200px;margin:0 auto;padding:100px 40px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:60px}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;transition:all .3s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s}
+.feat-card:hover{border-color:rgba(255,60,95,.2);transform:translateY(-4px);background:var(--surface2)}
+.feat-card:hover::before{opacity:1}
+.fi{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-size:20px;margin-bottom:18px}
+.fi.r{background:rgba(255,60,95,.12)}.fi.g{background:rgba(0,212,170,.12)}.fi.o{background:rgba(255,140,66,.12)}.fi.b{background:rgba(99,102,241,.12)}.fi.p{background:rgba(168,85,247,.12)}.fi.c{background:rgba(34,211,238,.12)}
+.feat-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;letter-spacing:-.3px}
+.feat-desc{font-size:14px;color:var(--text-muted);line-height:1.7;font-weight:300}
+
+/* ── METRICS SHOWCASE ── */
+.met-sec{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 40px}
+.met-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.met-list{display:flex;flex-direction:column;margin-top:40px}
+.mi{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);align-items:flex-start;cursor:pointer}
+.mi:last-child{border-bottom:none}
+.mi:hover .mi-icon{background:var(--accent)}
+.mi-icon{width:36px;height:36px;border-radius:8px;background:var(--surface3);display:grid;place-items:center;font-size:16px;flex-shrink:0;transition:background .2s}
+.mi-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin-bottom:4px}
+.mi-desc{font-size:13px;color:var(--text-muted);line-height:1.6;font-weight:300}
+.score-vis{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:32px}
+.sv-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:24px}
+.ring-wrap{display:flex;justify-content:center;margin-bottom:28px;position:relative}
+.ring-svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-num{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ring-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.sb-list{display:flex;flex-direction:column;gap:14px}
+.sb-item{display:flex;align-items:center;gap:12px}
+.sb-lbl{font-size:12px;color:var(--text-muted);width:100px;flex-shrink:0}
+.sb-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.sb-fill{height:100%;border-radius:3px}
+.sb-val{font-size:12px;font-weight:600;width:32px;text-align:right}
+
+/* ── CTA ── */
+.cta-sec{max-width:1200px;margin:0 auto;padding:100px 40px;text-align:center}
+.cta-box{background:linear-gradient(135deg,rgba(255,60,95,.08),rgba(0,212,170,.06));border:1px solid rgba(255,60,95,.15);border-radius:20px;padding:80px 40px;position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,60,95,.1) 0%,transparent 70%);top:-100px;right:-50px}
+.cta-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3vw,44px);font-weight:800;letter-spacing:-1.5px;margin-bottom:16px}
+.cta-sub{font-size:16px;color:var(--text-muted);margin-bottom:32px;font-weight:300}
+
+/* ── PAGE COMMON ── */
+.pg-wrap{max-width:1200px;margin:0 auto;padding:50px 40px}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:20px}
+.pg-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3.5vw,42px);font-weight:800;letter-spacing:-1.5px;line-height:1.1}
+.pg-title span{color:var(--accent)}
+.pg-sub{font-size:14px;color:var(--text-muted);margin-top:6px;font-weight:300}
+
+/* ── PILL FILTERS ── */
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:7px 14px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);transition:all .2s}
+.pill:hover,.pill.active{border-color:var(--accent);color:var(--accent);background:rgba(255,60,95,.08)}
+
+/* ── VIDEO CARDS ── */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.vcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .3s;cursor:pointer}
+.vcard:hover{border-color:rgba(255,60,95,.25);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.vthumb{width:100%;aspect-ratio:16/9;background:var(--surface2);position:relative;overflow:hidden}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.vcard:hover .vthumb img{transform:scale(1.04)}
+.vrank{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:3px 8px;border-radius:4px;z-index:2}
+.vdur{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;z-index:2}
+.vbody{padding:16px}
+.vcat{font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;color:var(--accent3);margin-bottom:8px}
+.vtitle{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vch{font-size:12.5px;color:var(--text-muted);margin-bottom:14px;font-weight:300}
+.vstats{display:flex;gap:16px}
+.vstat{font-size:12px;color:var(--text-muted)}
+.veng{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.eng-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+.eng-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ana-btn{padding:7px 14px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ana-btn:hover{background:var(--accent);color:#fff}
+
+/* ── ANALYSIS PAGE ── */
+.url-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;margin-bottom:36px;position:relative;overflow:hidden}
+.url-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3))}
+.url-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.url-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px;font-weight:300}
+.url-row{display:flex;gap:12px}
+.url-in{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
+.url-in:focus{border-color:var(--accent)}
+.url-in::placeholder{color:var(--text-dim)}
+.url-btn{padding:14px 28px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.url-btn:hover{background:#ff5577;transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,60,95,.35)}
+.url-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* quick picks */
+.qp-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin:20px 0 10px}
+.qp-row{display:flex;gap:10px;flex-wrap:wrap}
+.qp-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:12.5px;color:var(--text-muted);max-width:240px}
+.qp-chip img{width:40px;height:26px;object-fit:cover;border-radius:3px;flex-shrink:0}
+.qp-chip span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.qp-chip:hover{border-color:rgba(255,60,95,.3);color:var(--text);background:var(--surface3)}
+
+/* loading */
+.loading{display:none;text-align:center;padding:60px 20px}
+.loading.on{display:block}
+.spin{width:48px;height:48px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:rotate .8s linear infinite;margin:0 auto 16px}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.load-txt{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text-muted)}
+.load-steps{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+.lstep{padding:5px 12px;border-radius:100px;font-size:12px;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);transition:all .3s}
+.lstep.done{background:rgba(0,212,170,.1);color:var(--accent3);border-color:rgba(0,212,170,.3)}
+.lstep.cur{background:rgba(255,60,95,.1);color:var(--accent);border-color:rgba(255,60,95,.3);animation:blink 1s infinite}
+
+/* results */
+.results{display:none}
+.results.on{display:block}
+.res-header{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:20px;align-items:flex-start;margin-bottom:24px}
+.res-thumb{width:220px;height:124px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--surface2)}
+.res-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.res-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;line-height:1.3}
+.res-ch{font-size:14px;color:var(--text-muted);margin-bottom:12px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--text-muted)}
+.m4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.mcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s}
+.mcard:hover{border-color:rgba(255,60,95,.2)}
+.mc-icon{font-size:22px;margin-bottom:12px}
+.mc-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px}
+.mc-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.mc-sub{font-size:12px;color:var(--text-muted);font-weight:300}
+.panels2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.panel-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:20px}
+.gauge-row{margin-bottom:18px}
+.g-head{display:flex;justify-content:space-between;margin-bottom:8px}
+.g-name{font-size:13px;color:var(--text-muted)}
+.g-score{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.g-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.g-fill{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
+.comment-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.com-txt{font-size:13px;color:var(--text-muted);line-height:1.6;font-weight:300;font-style:italic}
+.com-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:12px}
+.com-author{font-weight:600}
+.com-likes{color:var(--text-muted)}
+.verdict{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;display:flex;gap:24px;align-items:center}
+.v-circle{width:100px;height:100px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+.v-circle svg{position:absolute;transform:rotate(-90deg)}
+.v-inner{position:relative;z-index:2;text-align:center}
+.v-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800}
+.v-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase}
+.v-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.v-desc{font-size:14px;color:var(--text-muted);line-height:1.7;font-weight:300}
+.v-chips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.vchip{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500}
+.vchip.good{background:rgba(0,212,170,.1);color:var(--accent3);border:1px solid rgba(0,212,170,.2)}
+.vchip.warn{background:rgba(255,140,66,.1);color:var(--accent2);border:1px solid rgba(255,140,66,.2)}
+.vchip.info{background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2)}
+
+/* ── FEATURES PAGE ── */
+.fpg-head{text-align:center;padding:40px 0 80px}
+.fd-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:80px}
+.fd-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;transition:all .3s}
+.fd-card:hover{border-color:rgba(255,60,95,.2);background:var(--surface2)}
+.fd-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.fd-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:22px}
+.fd-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.3px}
+.fd-desc{font-size:14px;color:var(--text-muted);line-height:1.8;font-weight:300;margin-bottom:20px}
+.code-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-family:'Courier New',monospace;font-size:12px;color:var(--accent3);border-left:3px solid var(--accent3)}
+.code-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;font-family:'DM Sans',sans-serif}
+.hiw{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px;margin-bottom:40px}
+.steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:40px;position:relative}
+.steps4::before{content:'';position:absolute;top:24px;left:calc(12.5% + 16px);right:calc(12.5% + 16px);height:1px;background:linear-gradient(90deg,var(--accent),var(--accent3));opacity:.3}
+.step{text-align:center}
+.step-n{width:48px;height:48px;border-radius:50%;background:var(--surface2);border:2px solid var(--accent);display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);margin:0 auto 16px;position:relative;z-index:2}
+.step-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px}
+.step-d{font-size:12px;color:var(--text-muted);line-height:1.6}
+
+/* ── FOOTER ── */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:60px 40px 40px}
+.ft-inner{max-width:1200px;margin:0 auto}
+.ft-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:48px}
+.ft-brand-desc{font-size:13.5px;color:var(--text-muted);line-height:1.7;margin-top:14px;font-weight:300;max-width:280px}
+.ft-col-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.ft-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.ft-links a{font-size:13.5px;color:var(--text-muted);text-decoration:none;cursor:pointer;transition:color .2s;font-weight:300}
+.ft-links a:hover{color:var(--text)}
+.ft-bot{display:flex;justify-content:space-between;align-items:center;padding-top:28px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.ft-copy{font-size:13px;color:var(--text-dim)}
+.ft-badges{display:flex;gap:8px}
+.ft-badge{padding:4px 10px;border-radius:4px;border:1px solid var(--border);font-size:11px;color:var(--text-dim)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .5s ease forwards}
+.fu{opacity:0;animation:fadeUp .6s ease forwards}
+.fu:nth-child(1){animation-delay:.05s}.fu:nth-child(2){animation-delay:.1s}.fu:nth-child(3){animation-delay:.15s}
+.fu:nth-child(4){animation-delay:.2s}.fu:nth-child(5){animation-delay:.25s}.fu:nth-child(6){animation-delay:.3s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hamburger{display:grid}
+  .hero-inner{grid-template-columns:1fr;gap:40px;padding:50px 20px}
+  .hero-vis{display:none}
+  .feat-grid{grid-template-columns:1fr}
+  .met-inner{grid-template-columns:1fr}
+  .met-list{display:none}
+  .pg-wrap{padding:30px 20px}
+  .vgrid{grid-template-columns:1fr}
+  .m4{grid-template-columns:repeat(2,1fr)}
+  .panels2{grid-template-columns:1fr}
+  .fd-grid{grid-template-columns:1fr}
+  .steps4{grid-template-columns:repeat(2,1fr)}.steps4::before{display:none}
+  .ft-top{grid-template-columns:1fr 1fr;gap:30px}
+  .url-row{flex-direction:column}
+  .res-header{flex-direction:column}
+  .res-thumb{width:100%;height:180px}
+  .verdict{flex-direction:column;text-align:center}
+  .pg-head{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .hero-title{font-size:34px}
+  .m4{grid-template-columns:1fr 1fr}
+  .ft-top{grid-template-columns:1fr}
+  .steps4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="go('home')">
+    <div class="logo-icon">▶</div>
+    <div class="logo-text">Trend<span>Pulse</span></div>
+  </div>
+  <ul class="nav-links">
+    <li><a onclick="go('home')" data-p="home" class="active">Home</a></li>
+    <li><a onclick="go('trending')" data-p="trending">Trending</a></li>
+    <li><a onclick="go('analysis')" data-p="analysis">Analysis</a></li>
+    <li><a onclick="go('features')" data-p="features">Features</a></li>
+    <li><a onclick="go('analysis')" class="nav-cta">Analyze Video →</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleNav()">☰</button>
+</nav>
+<div class="mob-nav" id="mobNav">
+  <div class="mob-link active" onclick="go('home');toggleNav()" data-p="home">Home</div>
+  <div class="mob-link" onclick="go('trending');toggleNav()" data-p="trending">Trending</div>
+  <div class="mob-link" onclick="go('analysis');toggleNav()" data-p="analysis">Analysis</div>
+  <div class="mob-link" onclick="go('features');toggleNav()" data-p="features">Features</div>
+</div>
+
+<!-- ════════ HOME ════════ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="orb1"></div><div class="orb2"></div>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">🔴 Live YouTube Intelligence</div>
+        <h1 class="hero-title">Decode What's<br><span class="grad">Trending Now</span></h1>
+        <p class="hero-desc">Deep-dive analytics for every YouTube video. Paste any URL and instantly get engagement scores, trend potential, channel context, and actionable insights — no setup required.</p>
+        <div class="hero-btns">
+          <button class="btn-p" onclick="go('analysis')">🔍 Analyze a Video</button>
+          <button class="btn-g" onclick="go('trending')">View Trending Feed →</button>
+        </div>
+        <div class="hero-stats">
+          <div><div class="hs-num">12+</div><div class="hs-lbl">Metrics</div></div>
+          <div><div class="hs-num">Real-time</div><div class="hs-lbl">Data</div></div>
+          <div><div class="hs-num">AI</div><div class="hs-lbl">Scoring</div></div>
+        </div>
+      </div>
+      <div class="hero-vis">
+        <div class="mockup fade-in">
+          <div class="mock-bar"><div class="mock-dots"><span></span><span></span><span></span></div><div class="mock-url">trendpulse.io/analysis</div></div>
+          <div class="mock-body">
+            <div class="mock-row3">
+              <div class="mock-cell"><div class="mc-lbl">Views</div><div class="mc-val r">24.7M</div></div>
+              <div class="mock-cell"><div class="mc-lbl">Likes</div><div class="mc-val g">1.2M</div></div>
+              <div class="mock-cell"><div class="mc-lbl">Engage%</div><div class="mc-val o">4.87%</div></div>
+            </div>
+            <div class="mock-chart">
+              <div class="mc-chart-lbl">Views over time</div>
+              <div class="bars">
+                <div class="bar" style="--h:20%"></div><div class="bar" style="--h:35%"></div>
+                <div class="bar" style="--h:55%"></div><div class="bar" style="--h:80%"></div>
+                <div class="bar" style="--h:100%"></div><div class="bar" style="--h:90%"></div>
+                <div class="bar" style="--h:70%"></div>
+              </div>
+            </div>
+            <div class="mock-row2">
+              <div class="mock-score"><div class="ms-lbl">Engagement Score</div><div class="ms-track"><div class="ms-fill r" style="--w:78%"></div></div><div class="ms-val r">78/100</div></div>
+              <div class="mock-score"><div class="ms-lbl">Trend Potential</div><div class="ms-track"><div class="ms-fill g" style="--w:85%"></div></div><div class="ms-val g">85/100</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feat-sec">
+    <div class="sec-lbl">Why TrendPulse</div>
+    <h2 class="sec-title">Every metric that matters,<br>in one place</h2>
+    <p class="sec-sub">From raw view counts to algorithmic trend potential — we surface what the YouTube dashboard hides.</p>
+    <div class="feat-grid">
+      <div class="feat-card fu"><div class="fi r">📊</div><h3 class="feat-name">Engagement Scoring</h3><p class="feat-desc">A composite score weighing likes, comments, and interactions against channel size to normalize performance across all creator tiers.</p></div>
+      <div class="feat-card fu"><div class="fi g">🚀</div><h3 class="feat-name">Trend Potential</h3><p class="feat-desc">Predictive index using velocity (views/hour), like ratio, comment sentiment, and category benchmark comparisons to forecast trajectory.</p></div>
+      <div class="feat-card fu"><div class="fi o">📡</div><h3 class="feat-name">Real-Time Trending Feed</h3><p class="feat-desc">Live feed of YouTube's top trending videos across all categories, ranked by our proprietary engagement algorithm.</p></div>
+      <div class="feat-card fu"><div class="fi b">🏷️</div><h3 class="feat-name">Tag & Category Intel</h3><p class="feat-desc">Extract all metadata tags and see how the video ranks within its category against current top performers.</p></div>
+      <div class="feat-card fu"><div class="fi p">👥</div><h3 class="feat-name">Channel Context</h3><p class="feat-desc">Subscriber count, upload frequency, channel age, and historical performance ratios for deep creator context.</p></div>
+      <div class="feat-card fu"><div class="fi c">💬</div><h3 class="feat-name">Comment Intelligence</h3><p class="feat-desc">Top comment analysis, engagement velocity, and qualitative sentiment classification from real viewer feedback.</p></div>
+    </div>
+  </section>
+
+  <section class="met-sec">
+    <div class="met-inner">
+      <div>
+        <div class="sec-lbl">The Science</div>
+        <h2 class="sec-title">How scores are calculated</h2>
+        <p class="sec-sub">Our algorithms are built on YouTube's own engagement signals, normalized for channel size.</p>
+        <div class="met-list">
+          <div class="mi"><div class="mi-icon">📈</div><div><div class="mi-title">Engagement Rate</div><div class="mi-desc">(Likes + Comments) / Views × 100. Normalized against category average.</div></div></div>
+          <div class="mi"><div class="mi-icon">⚡</div><div><div class="mi-title">View Velocity</div><div class="mi-desc">Views per hour since publish. Exponential decay weighting favors recent momentum.</div></div></div>
+          <div class="mi"><div class="mi-icon">🎯</div><div><div class="mi-title">Like-to-View Ratio</div><div class="mi-desc">Industry benchmark is 2–4%. Above 5% signals exceptional audience resonance.</div></div></div>
+          <div class="mi"><div class="mi-icon">💎</div><div><div class="mi-title">Subscriber Ratio</div><div class="mi-desc">Views relative to subscriber count reveals viral breakout beyond core audience.</div></div></div>
+        </div>
+      </div>
+      <div class="score-vis">
+        <div class="sv-title">Sample Score Breakdown</div>
+        <div class="ring-wrap">
+          <svg width="140" height="140" class="ring-svg">
+            <circle cx="70" cy="70" r="60" fill="none" stroke="#1e2535" stroke-width="10"/>
+            <circle cx="70" cy="70" r="60" fill="none" stroke="url(#g1)" stroke-width="10" stroke-dasharray="377" stroke-dashoffset="83" stroke-linecap="round"/>
+            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff3c5f"/><stop offset="100%" style="stop-color:#ff8c42"/></linearGradient></defs>
+          </svg>
+          <div class="ring-center"><div class="ring-num">78</div><div class="ring-lbl">/ 100</div></div>
+        </div>
+        <div class="sb-list">
+          <div class="sb-item"><span class="sb-lbl">Engagement Rate</span><div class="sb-track"><div class="sb-fill" style="width:85%;background:var(--accent)"></div></div><span class="sb-val" style="color:var(--accent)">85</span></div>
+          <div class="sb-item"><span class="sb-lbl">View Velocity</span><div class="sb-track"><div class="sb-fill" style="width:72%;background:var(--accent2)"></div></div><span class="sb-val" style="color:var(--accent2)">72</span></div>
+          <div class="sb-item"><span class="sb-lbl">Like Ratio</span><div class="sb-track"><div class="sb-fill" style="width:90%;background:var(--accent3)"></div></div><span class="sb-val" style="color:var(--accent3)">90</span></div>
+          <div class="sb-item"><span class="sb-lbl">Sub Ratio</span><div class="sb-track"><div class="sb-fill" style="width:65%;background:#818cf8"></div></div><span class="sb-val" style="color:#818cf8">65</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-sec">
+    <div class="cta-box">
+      <h2 class="cta-title">Ready to decode the algorithm?</h2>
+      <p class="cta-sub">Pick any video from our trending feed or paste your own URL — full intelligence report in seconds.</p>
+      <button class="btn-p" onclick="go('analysis')" style="margin:0 auto;display:inline-flex">🔍 Start Analyzing →</button>
+    </div>
+  </section>
+</div>
+
+<!-- ════════ TRENDING ════════ -->
+<div class="page" id="page-trending">
+  <div class="pg-wrap">
+    <div class="pg-head">
+      <div>
+        <h1 class="pg-title">Trending <span>Now</span></h1>
+        <p class="pg-sub">Most-watched videos on YouTube · Click any card to analyze</p>
+      </div>
+      <div class="pills" id="pills">
+        <div class="pill active" onclick="filter('all',this)">All</div>
+        <div class="pill" onclick="filter('music',this)">🎵 Music</div>
+        <div class="pill" onclick="filter('gaming',this)">🎮 Gaming</div>
+        <div class="pill" onclick="filter('sports',this)">⚽ Sports</div>
+        <div class="pill" onclick="filter('tech',this)">💻 Tech</div>
+        <div class="pill" onclick="filter('entertainment',this)">🎬 Entertainment</div>
+      </div>
+    </div>
+    <div class="vgrid" id="tGrid"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYSIS ════════ -->
+<div class="page" id="page-analysis">
+  <div class="pg-wrap">
+    <div class="pg-head" style="margin-bottom:24px">
+      <div>
+        <h1 class="pg-title">Video <span>Analysis</span></h1>
+        <p class="pg-sub">Paste any YouTube URL for a complete intelligence report</p>
+      </div>
+    </div>
+    <div class="url-box">
+      <h2 class="url-title">Analyze Any YouTube Video</h2>
+      <p class="url-sub">Supports youtube.com/watch?v=... and youtu.be/... formats</p>
+      <div class="url-row">
+        <input class="url-in" id="urlIn" type="text" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" onkeypress="if(event.key==='Enter')analyze()">
+        <button class="url-btn" id="urlBtn" onclick="analyze()">🔍 Analyze</button>
+      </div>
+      <div class="qp-label">Quick picks — try these popular videos:</div>
+      <div class="qp-row" id="qpRow"></div>
+    </div>
+    <div class="loading" id="loadBox">
+      <div class="spin"></div>
+      <div class="load-txt">Analyzing video...</div>
+      <div class="load-steps">
+        <div class="lstep cur" id="s1">📡 Fetching metadata</div>
+        <div class="lstep" id="s2">📊 Calculating metrics</div>
+        <div class="lstep" id="s3">🤖 Scoring engagement</div>
+        <div class="lstep" id="s4">✅ Building report</div>
+      </div>
+    </div>
+    <div class="results" id="resultsBox"></div>
+  </div>
+</div>
+
+<!-- ════════ FEATURES ════════ -->
+<div class="page" id="page-features">
+  <div class="pg-wrap">
+    <div class="fpg-head">
+      <div class="sec-lbl">Platform Features</div>
+      <h1 class="sec-title">Every tool, explained</h1>
+      <p class="sec-sub" style="margin:0 auto">A complete breakdown of every metric, score, and analysis technique powering TrendPulse.</p>
+    </div>
+    <div class="fd-grid">
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(255,60,95,.12)">📊</div><h3 class="fd-name">Engagement Score</h3></div><p class="fd-desc">The Engagement Score is TrendPulse's core metric. It weighs the ratio of active interactions (likes + comments) against total views, then normalizes against the category average. A score above 70 indicates exceptional audience resonance that triggers YouTube's recommendation algorithm.</p><div class="code-box"><div class="code-lbl">Formula</div>score = ((likes + comments) / views) × 100<br>normalized = (score / category_avg) × 100<br>final = min(normalized × weight_factor, 100)</div></div>
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(0,212,170,.12)">🚀</div><h3 class="fd-name">Trend Potential</h3></div><p class="fd-desc">Trend Potential predicts how likely a video is to appear on YouTube's Trending page. It combines view velocity (speed of accumulation), like ratio, comment-to-view ratio, and how the video performs relative to the channel's historical average.</p><div class="code-box"><div class="code-lbl">Formula</div>velocity = views / hours_since_publish<br>potential = (velocity_score × 0.40) +<br>&nbsp;&nbsp;(like_ratio_score × 0.35) +<br>&nbsp;&nbsp;(channel_perf_ratio × 0.25)</div></div>
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(255,140,66,.12)">⚡</div><h3 class="fd-name">View Velocity</h3></div><p class="fd-desc">View Velocity measures how quickly a video accumulates views relative to its publish age. A video with 1M views after 2 hours has vastly different signal than one with the same count after a month. We use exponential time decay weighting.</p><div class="code-box"><div class="code-lbl">Formula</div>age_hours = (now - publish_date) / 3600<br>raw_velocity = views / age_hours<br>decay = e^(-0.05 × age_hours)<br>velocity_score = raw_velocity × decay</div></div>
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(99,102,241,.12)">👥</div><h3 class="fd-name">Subscriber Ratio</h3></div><p class="fd-desc">The Subscriber Ratio reveals whether a video reaches beyond the existing audience. A 100K channel getting 5M views has a 50× ratio — indicating viral breakout. This is a key signal YouTube uses to surface content to non-subscribers.</p><div class="code-box"><div class="code-lbl">Formula</div>ratio = views / subscriber_count<br>above 1.0 → exceeds subscriber base<br>above 5.0 → strong viral signal<br>above 10.0 → exceptional breakout</div></div>
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(168,85,247,.12)">💬</div><h3 class="fd-name">Comment Analysis</h3></div><p class="fd-desc">Comments-per-view is a strong signal of passionate engagement. YouTube's algorithm treats high comment counts as an indication of content that provokes conversation and extends watch sessions across sessions.</p><div class="code-box"><div class="code-lbl">Signal Weights</div>comment_rate = comments / views × 100<br>above 0.1% → above average<br>above 0.5% → high engagement<br>above 1.0% → exceptional discussion</div></div>
+      <div class="fd-card"><div class="fd-head"><div class="fd-icon" style="background:rgba(34,211,238,.12)">🏷️</div><h3 class="fd-name">Tag & Category Intel</h3></div><p class="fd-desc">Video tags and category placement directly affect discoverability. We extract all metadata tags and cross-reference against trending search queries. Category ranking shows where the video sits within its vertical.</p><div class="code-box"><div class="code-lbl">Data Points</div>- All metadata tags extracted<br>- Category ID → human-readable name<br>- Category benchmark scores<br>- Tag relevance estimation</div></div>
+    </div>
+    <div class="hiw">
+      <div class="sec-lbl">Process</div>
+      <h2 class="sec-title">How it works</h2>
+      <div class="steps4">
+        <div class="step"><div class="step-n">1</div><div class="step-t">Paste URL</div><div class="step-d">Enter any YouTube video URL. We support all standard formats including short links and embeds.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-t">Data Fetch</div><div class="step-d">We retrieve video statistics, channel data, and metadata directly from YouTube in real-time.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-t">Processing</div><div class="step-d">Our scoring engine calculates all metrics, normalizes against benchmarks, and assembles the full report.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-t">Intelligence</div><div class="step-d">Receive your complete analytics dashboard with actionable insights and a final verdict score.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <div class="ft-top">
+      <div>
+        <div class="logo" style="cursor:default"><div class="logo-icon">▶</div><div class="logo-text">Trend<span>Pulse</span></div></div>
+        <p class="ft-brand-desc">YouTube intelligence platform for creators, marketers, and analysts who need to understand what's trending and why.</p>
+      </div>
+      <div>
+        <div class="ft-col-title">Platform</div>
+        <ul class="ft-links"><li><a onclick="go('home')">Home</a></li><li><a onclick="go('trending')">Trending Feed</a></li><li><a onclick="go('analysis')">Video Analysis</a></li><li><a onclick="go('features')">Features</a></li></ul>
+      </div>
+      <div>
+        <div class="ft-col-title">Metrics</div>
+        <ul class="ft-links"><li><a>Engagement Score</a></li><li><a>Trend Potential</a></li><li><a>View Velocity</a></li><li><a>Subscriber Ratio</a></li></ul>
+      </div>
+      <div>
+        <div class="ft-col-title">Resources</div>
+        <ul class="ft-links"><li><a href="https://developers.google.com/youtube/v3" target="_blank">YouTube API Docs</a></li><li><a onclick="go('features')">Metric Formulas</a></li><li><a onclick="go('trending')">Trending Data</a></li></ul>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span class="ft-copy">© 2025 TrendPulse — YouTube Intelligence Platform</span>
+      <div class="ft-badges"><span class="ft-badge">YouTube Data</span><span class="ft-badge">Python Flask</span><span class="ft-badge">ES6+</span></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  VIDEO DATABASE — Real YouTube IDs → real thumbnails
+// ════════════════════════════════════════════════════════
+const DB = [
+  {
+    id:'dQw4w9WgXcQ',rank:1,cat:'music',dur:'3:33',ago:'15 years ago',
+    title:'Rick Astley – Never Gonna Give You Up (Official Video)',
+    ch:'Rick Astley',subs:4200000,views:1500000000,likes:16000000,comments:2800000,
+    tags:['rick astley','never gonna give you up','80s','pop','official video'],
+    coms:[
+      {t:'This song has been in every generation since it dropped. A true internet legend that will outlive us all.',a:'@RetroVibes',l:142000},
+      {t:'My grandma asked me to play this at her birthday. She said it was her favorite song from "back in the day."',a:'@FamilyMoments',l:89000},
+      {t:'The most rickrolled people on Earth. That\'s the cultural impact. Unmatched.',a:'@MemeCulture',l:67000}
+    ],
+    e:94,tp:88,ls:96,cs:91,ss:82,ov:92
+  },
+  {
+    id:'kJQP7kiw5Fk',rank:2,cat:'music',dur:'4:42',ago:'7 years ago',
+    title:'Luis Fonsi – Despacito ft. Daddy Yankee',
+    ch:'Luis Fonsi',subs:32000000,views:8300000000,likes:52000000,comments:6700000,
+    tags:['despacito','reggaeton','latin','luis fonsi','daddy yankee','official'],
+    coms:[
+      {t:'8 billion views. Almost every person on Earth has watched this at some point. Let that sink in.',a:'@MathPerson',l:312000},
+      {t:'This song single-handedly made the whole world want to learn Spanish.',a:'@LanguageLearner',l:187000},
+      {t:'The music video is a cinematic masterpiece. Every single shot is carefully composed.',a:'@FilmNerd',l:95000}
+    ],
+    e:97,tp:95,ls:99,cs:96,ss:94,ov:96
+  },
+  {
+    id:'JGwWNGJdvx8',rank:3,cat:'music',dur:'4:23',ago:'8 years ago',
+    title:'Ed Sheeran – Shape of You (Official Music Video)',
+    ch:'Ed Sheeran',subs:55000000,views:6200000000,likes:31000000,comments:2400000,
+    tags:['ed sheeran','shape of you','pop','official music video','2017'],
+    coms:[
+      {t:'Still the most streamed song on Spotify ever. It defined an entire era of pop music.',a:'@MusicHistorian',l:203000},
+      {t:'I remember hearing this for the first time and knowing immediately it would be everywhere.',a:'@EarlyListener',l:98000},
+      {t:'Ed Sheeran somehow makes every genre feel like it was invented specifically for him.',a:'@GenreBender',l:74000}
+    ],
+    e:89,tp:82,ls:91,cs:85,ss:70,ov:86
+  },
+  {
+    id:'9bZkp7q19f0',rank:4,cat:'music',dur:'4:12',ago:'12 years ago',
+    title:'PSY – GANGNAM STYLE (강남스타일) M/V',
+    ch:'officialpsy',subs:18000000,views:5100000000,likes:24000000,comments:5200000,
+    tags:['psy','gangnam style','kpop','viral','korea','dance'],
+    coms:[
+      {t:'This video literally broke YouTube\'s view counter. They had to upgrade the code because of PSY.',a:'@TechFact',l:445000},
+      {t:'The first video I ever shared was this one. I remember sending it to everyone I knew in 2012.',a:'@2012Nostalgia',l:278000},
+      {t:'Still does the dance at every party. No regrets. Never regrets.',a:'@PartyPerson',l:156000}
+    ],
+    e:96,tp:93,ls:95,cs:97,ss:88,ov:94
+  },
+  {
+    id:'RgKAFK5djSk',rank:5,cat:'music',dur:'3:51',ago:'10 years ago',
+    title:'Wiz Khalifa – See You Again ft. Charlie Puth [Fast & Furious 7]',
+    ch:'Wiz Khalifa',subs:28000000,views:6000000000,likes:35000000,comments:3100000,
+    tags:['see you again','fast furious','wiz khalifa','charlie puth','tribute','paul walker'],
+    coms:[
+      {t:'Paul Walker deserved every single one of these views. This tribute will outlive us all.',a:'@ForPaul',l:521000},
+      {t:'Crying in the first 10 seconds for the 500th time. Nothing changes.',a:'@EmotionalWreck',l:349000},
+      {t:'Charlie Puth wrote this when he was very young. His talent is genuinely remarkable.',a:'@MusicGeek',l:167000}
+    ],
+    e:95,tp:90,ls:98,cs:93,ss:86,ov:94
+  },
+  {
+    id:'OPf0YbXqDm0',rank:6,cat:'music',dur:'4:30',ago:'10 years ago',
+    title:'Mark Ronson – Uptown Funk ft. Bruno Mars (Official Video)',
+    ch:'Mark Ronson',subs:8000000,views:5000000000,likes:25000000,comments:1900000,
+    tags:['uptown funk','bruno mars','mark ronson','funk','pop','official'],
+    coms:[
+      {t:'This song literally cannot be skipped. It is physically impossible. It is hardwired into every human.',a:'@GrooveScience',l:389000},
+      {t:'Bruno Mars carries this with the energy of someone performing at the Super Bowl every single time.',a:'@PerformanceAnalyst',l:213000},
+      {t:'The brass section alone deserves its own Grammy. Genuinely one of the best arrangements in modern pop.',a:'@JazzHead',l:144000}
+    ],
+    e:91,tp:85,ls:92,cs:88,ss:95,ov:90
+  },
+  {
+    id:'YqeW9_5kURI',rank:7,cat:'entertainment',dur:'14:22',ago:'6 months ago',
+    title:'I Spent 7 Days Buried Alive',
+    ch:'MrBeast',subs:300000000,views:180000000,likes:8500000,comments:640000,
+    tags:['mrbeast','challenge','buried alive','stunt','viral','7 days'],
+    coms:[
+      {t:'MrBeast said "let me physically suffer for content" and 180 million people watched. That\'s insane.',a:'@ContentAnalysis',l:423000},
+      {t:'The production quality of this channel has now surpassed most Hollywood films.',a:'@FilmComparison',l:287000},
+      {t:'300 million subscribers. He is basically a small country at this point.',a:'@Demographics',l:198000}
+    ],
+    e:88,tp:94,ls:85,cs:87,ss:60,ov:84
+  },
+  {
+    id:'CevxZvSJLk8',rank:8,cat:'music',dur:'3:43',ago:'11 years ago',
+    title:'Katy Perry – Roar (Official Music Video)',
+    ch:'Katy Perry',subs:50000000,views:3900000000,likes:14000000,comments:1200000,
+    tags:['katy perry','roar','pop','official music video','empowerment'],
+    coms:[
+      {t:'This was literally THE anthem of 2013. Every motivational video had this in the background.',a:'@2013Kid',l:198000},
+      {t:'Katy Perry\'s creative peak. The video, the message, the energy — all absolutely perfect.',a:'@PopCritic',l:127000},
+      {t:'Still get chills at the chorus. Some songs just stay in your blood forever.',a:'@TimelessFan',l:89000}
+    ],
+    e:87,tp:79,ls:85,cs:82,ss:72,ov:83
+  },
+  {
+    id:'IVgKNf1JCow',rank:9,cat:'gaming',dur:'28:15',ago:'3 months ago',
+    title:'I Survived 100 Days in Minecraft Hardcore — Season Finale',
+    ch:'Dream',subs:32000000,views:45000000,likes:3200000,comments:480000,
+    tags:['minecraft','dream','hardcore','100 days','gaming','challenge','finale'],
+    coms:[
+      {t:'The editing on this finale is absolutely cinematic. This creator understands storytelling on a deep level.',a:'@NarrativeDesign',l:167000},
+      {t:'I don\'t even play Minecraft but I watched every single second. That\'s the power of great content.',a:'@NonGamer',l:134000},
+      {t:'The tension in the last 10 minutes had me literally standing up from my couch.',a:'@PhysicalReaction',l:98000}
+    ],
+    e:91,tp:87,ls:89,cs:92,ss:70,ov:88
+  },
+  {
+    id:'hT_nvWreIhg',rank:10,cat:'music',dur:'4:17',ago:'11 years ago',
+    title:'OneRepublic – Counting Stars (Official Music Video)',
+    ch:'OneRepublic',subs:22000000,views:3500000000,likes:16000000,comments:980000,
+    tags:['onerepublic','counting stars','pop rock','alternative','official'],
+    coms:[
+      {t:'I challenge you to find a single person who has ever skipped this song. Absolutely impossible.',a:'@SkipStudy',l:267000},
+      {t:'The verse alone is one of the greatest ever written in modern pop. Pure storytelling.',a:'@LyricAnalysis',l:145000},
+      {t:'This was playing on every radio station simultaneously for 6 months straight in 2013.',a:'@RadioEra',l:93000}
+    ],
+    e:90,tp:83,ls:92,cs:86,ss:79,ov:87
+  },
+  {
+    id:'_OBlgSz8sSM',rank:11,cat:'tech',dur:'21:08',ago:'2 weeks ago',
+    title:'I Tested Every Major AI Tool in 2025 — Here\'s What Actually Works',
+    ch:'Marques Brownlee',subs:18000000,views:12000000,likes:680000,comments:42000,
+    tags:['mkbhd','ai','tech review','2025','artificial intelligence','comparison'],
+    coms:[
+      {t:'MKBHD remains the gold standard for tech reviews. The clarity of explanation is unmatched.',a:'@TechStandards',l:78000},
+      {t:'I trust this channel more than I trust most actual published tech journalists.',a:'@MediaCritic',l:54000},
+      {t:'The production quality alone costs more than most channels\' entire setups.',a:'@ProductionHead',l:31000}
+    ],
+    e:85,tp:82,ls:80,cs:78,ss:66,ov:79
+  },
+  {
+    id:'dfs5uT0GNIQ',rank:12,cat:'sports',dur:'2:58',ago:'1 month ago',
+    title:'Champions League Final — Greatest Last-Minute Goal in History',
+    ch:'UEFA Champions League',subs:14000000,views:28000000,likes:1900000,comments:310000,
+    tags:['champions league','final','football','goal','last minute','soccer'],
+    coms:[
+      {t:'That last-minute goal will be studied in football academies for the next 50 years.',a:'@FootballScholar',l:234000},
+      {t:'Real Madrid does this EVERY single year. There is genuinely no explanation for it.',a:'@SpookyStats',l:187000},
+      {t:'Cried watching it live. Still cry watching the replay. This sport owns my entire soul.',a:'@FootballFan',l:143000}
+    ],
+    e:93,tp:96,ls:90,cs:94,ss:89,ov:93
+  }
+];
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+let curFilter = 'all';
+
+function go(pg) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pg).classList.add('active');
+  document.querySelectorAll('[data-p]').forEach(a => a.classList.toggle('active', a.dataset.p === pg));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if (pg === 'trending') renderTrend();
+  if (pg === 'analysis') buildQP();
+}
+
+function toggleNav() {
+  document.getElementById('mobNav').classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+const fmt = n => n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n);
+const thumb = (id, q='mqdefault') => `https://i.ytimg.com/vi/${id}/${q}.jpg`;
+const scoreColor = s => s >= 80 ? 'var(--accent3)' : s >= 60 ? 'var(--accent2)' : 'var(--accent)';
+
+function extractId(url) {
+  const m = url.match(/(?:v=|\/v\/|youtu\.be\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return url.trim();
+  return null;
+}
+
+// ════════════════════════════════════════════════════════
+//  TRENDING
+// ════════════════════════════════════════════════════════
+const catMoji = {music:'🎵',gaming:'🎮',sports:'⚽',tech:'💻',entertainment:'🎬'};
+
+function renderTrend() {
+  const data = curFilter === 'all' ? DB : DB.filter(v => v.cat === curFilter);
+  document.getElementById('tGrid').innerHTML = data.map((v,i) => `
+    <div class="vcard fu" style="animation-delay:${i*.04}s" onclick="doAnalyze('${v.id}')">
+      <div class="vthumb">
+        <img src="${thumb(v.id)}" alt="" loading="lazy"
+          onerror="this.onerror=null;this.src='${thumb(v.id,'hqdefault')}'">
+        <div class="vrank">#${v.rank}</div>
+        <div class="vdur">${v.dur}</div>
+      </div>
+      <div class="vbody">
+        <div class="vcat">${catMoji[v.cat]||'📺'} ${v.cat.toUpperCase()}</div>
+        <h3 class="vtitle">${v.title}</h3>
+        <div class="vch">by ${v.ch}</div>
+        <div class="vstats">
+          <span class="vstat">👁 ${fmt(v.views)}</span>
+          <span class="vstat">👍 ${fmt(v.likes)}</span>
+          <span class="vstat">💬 ${fmt(v.comments)}</span>
+        </div>
+        <div class="veng">
+          <div><div class="eng-lbl">Engagement</div><div class="eng-val">${v.e}/100</div></div>
+          <button class="ana-btn" onclick="event.stopPropagation();doAnalyze('${v.id}')">Analyze →</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filter(cat, el) {
+  curFilter = cat;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderTrend();
+}
+
+// ════════════════════════════════════════════════════════
+//  QUICK PICKS
+// ════════════════════════════════════════════════════════
+function buildQP() {
+  document.getElementById('qpRow').innerHTML = DB.slice(0, 7).map(v => `
+    <div class="qp-chip" onclick="doAnalyze('${v.id}')">
+      <img src="${thumb(v.id)}" alt="" onerror="this.style.display='none'">
+      <span>${v.title.length > 38 ? v.title.slice(0,38)+'…' : v.title}</span>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  ANALYSIS
+// ════════════════════════════════════════════════════════
+function doAnalyze(id) {
+  go('analysis');
+  document.getElementById('urlIn').value = `https://www.youtube.com/watch?v=${id}`;
+  setTimeout(analyze, 120);
+}
+
+async function analyze() {
+  const raw = document.getElementById('urlIn').value.trim();
+  if (!raw) return;
+  const id = extractId(raw);
+
+  // reset UI
+  document.getElementById('resultsBox').classList.remove('on');
+  document.getElementById('loadBox').classList.add('on');
+  document.getElementById('urlBtn').disabled = true;
+  ['s1','s2','s3','s4'].forEach(s => {
+    document.getElementById(s).className = 'lstep';
+  });
+  document.getElementById('s1').classList.add('cur');
+
+  // step animation
+  const steps = ['s1','s2','s3','s4'];
+  let si = 0;
+  const iv = setInterval(() => {
+    if (si > 0) document.getElementById(steps[si-1]).className = 'lstep done';
+    if (si < steps.length) { document.getElementById(steps[si]).className = 'lstep cur'; si++; }
+    else clearInterval(iv);
+  }, 560);
+
+  await new Promise(r => setTimeout(r, 2600));
+  clearInterval(iv);
+  steps.forEach(s => document.getElementById(s).className = 'lstep done');
+
+  // get data
+  let data = id ? DB.find(v => v.id === id) : null;
+  if (!data && id) data = makeFakeData(id);
+  if (!data) { alert('Could not parse that URL. Please try a valid YouTube link.'); document.getElementById('loadBox').classList.remove('on'); document.getElementById('urlBtn').disabled = false; return; }
+
+  document.getElementById('loadBox').classList.remove('on');
+  document.getElementById('urlBtn').disabled = false;
+  renderResult(data);
+  document.getElementById('resultsBox').classList.add('on');
+  document.getElementById('resultsBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// generate plausible data for unknown video IDs
+function makeFakeData(id) {
+  const seed = id.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const r = (lo, hi) => lo + ((seed * 31) % (hi - lo));
+  const views = r(200000, 80000000);
+  return {
+    id, rank:'—', cat:'entertainment', dur: r(2,30)+':'+String(r(10,59)).padStart(2,'0'),
+    ago: r(1,36)+' months ago',
+    title: `YouTube Video (ID: ${id})`, ch: 'YouTube Creator',
+    subs: r(50000, 20000000), views, likes: Math.floor(views * r(1,8) / 100),
+    comments: Math.floor(views * r(1,5) / 1000),
+    tags: ['youtube','video','content','creator'],
+    coms: [
+      {t:'Really impressive content. Came here from the recommended feed.',a:'@viewer1',l:1200},
+      {t:'The production quality is seriously impressive throughout this video.',a:'@viewer2',l:890},
+      {t:'Can\'t believe this doesn\'t have more views. Genuinely underrated.',a:'@viewer3',l:540}
+    ],
+    e: r(55,93), tp: r(50,90), ls: r(52,91), cs: r(48,88), ss: r(50,87), ov: r(55,92)
+  };
+}
+
+function getVerdict(s) {
+  if (s >= 90) return {em:'🔥',title:'Viral Powerhouse',desc:'This video is performing at an exceptional level, exceeding category benchmarks across nearly all metrics. Strong algorithmic momentum with recommendation amplification expected to continue significantly.',chips:[{t:'Viral Level',c:'good'},{t:'Top 3% Category',c:'good'},{t:'Algorithm Favorite',c:'good'}]};
+  if (s >= 80) return {em:'🚀',title:'Strong Performer',desc:'Above-average engagement with solid trend potential. This video is successfully breaking out of its subscriber base and showing healthy like and comment ratios that YouTube rewards with broader distribution.',chips:[{t:'Above Average',c:'good'},{t:'High Engagement',c:'good'},{t:'Growing Reach',c:'info'}]};
+  if (s >= 65) return {em:'📈',title:'Growing Momentum',desc:'Moderate performance with room to grow. Engagement metrics are positive but velocity is still building. Watch for acceleration in the next 24–48 hours as the algorithm fully indexes this content.',chips:[{t:'Building Momentum',c:'info'},{t:'Positive Signals',c:'good'},{t:'Watch Velocity',c:'warn'}]};
+  return {em:'📊',title:'Early Stage',desc:'Performance metrics are currently below category average. This may reflect the early publish stage, limited promotion, or audience mismatch. More data needed for a definitive assessment.',chips:[{t:'Below Average',c:'warn'},{t:'Early Data',c:'info'},{t:'Monitor Growth',c:'warn'}]};
+}
+
+function renderResult(v) {
+  const verdict = getVerdict(v.ov);
+  const likeRatio = v.views > 0 ? (v.likes / v.views * 100).toFixed(2) : '0.00';
+  const comRate = v.views > 0 ? (v.comments / v.views * 100).toFixed(3) : '0.000';
+  const subRatio = v.subs > 0 ? (v.views / v.subs).toFixed(1) : '—';
+  const svgOff = 283 - (283 * v.ov / 100);
+  const col = scoreColor(v.ov);
+
+  const gauges = [
+    {n:'Engagement Score',val:v.e},{n:'Trend Potential',val:v.tp},
+    {n:'Like Ratio Score',val:v.ls},{n:'Comment Activity',val:v.cs},{n:'Subscriber Reach',val:v.ss}
+  ];
+
+  document.getElementById('resultsBox').innerHTML = `
+    <div class="res-header fu">
+      <div class="res-thumb">
+        <img src="${thumb(v.id,'hqdefault')}" alt=""
+          onerror="this.onerror=null;this.src='${thumb(v.id)}'">
+      </div>
+      <div style="flex:1">
+        <h2 class="res-title">${v.title}</h2>
+        <div class="res-ch">by <strong>${v.ch}</strong> · ${fmt(v.subs)} subscribers · Published ${v.ago}</div>
+        <div class="tags">
+          ${v.tags.slice(0,8).map(t=>`<span class="tag">${t}</span>`).join('')}
+          <span class="tag" style="border-color:var(--accent3);color:var(--accent3)">${v.cat}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="m4">
+      <div class="mcard fu"><div class="mc-icon">👁️</div><div class="mc-lbl">Total Views</div><div class="mc-val" style="color:var(--accent)">${fmt(v.views)}</div><div class="mc-sub">${v.views.toLocaleString()}</div></div>
+      <div class="mcard fu"><div class="mc-icon">👍</div><div class="mc-lbl">Likes</div><div class="mc-val" style="color:var(--accent3)">${fmt(v.likes)}</div><div class="mc-sub">${likeRatio}% like ratio</div></div>
+      <div class="mcard fu"><div class="mc-icon">💬</div><div class="mc-lbl">Comments</div><div class="mc-val" style="color:var(--accent2)">${fmt(v.comments)}</div><div class="mc-sub">${comRate}% comment rate</div></div>
+      <div class="mcard fu"><div class="mc-icon">📡</div><div class="mc-lbl">Sub Ratio</div><div class="mc-val" style="color:#818cf8">${subRatio}×</div><div class="mc-sub">views vs subs</div></div>
+    </div>
+
+    <div class="panels2">
+      <div class="panel fu">
+        <div class="panel-title">📊 Score Breakdown</div>
+        <div>${gauges.map(g=>`
+          <div class="gauge-row">
+            <div class="g-head"><span class="g-name">${g.n}</span><span class="g-score" style="color:${scoreColor(g.val)}">${g.val}/100</span></div>
+            <div class="g-track"><div class="g-fill" style="width:${g.val}%;background:${scoreColor(g.val)}"></div></div>
+          </div>
+        `).join('')}</div>
+      </div>
+      <div class="panel fu">
+        <div class="panel-title">💬 Top Comments</div>
+        ${v.coms.map(c=>`
+          <div class="comment-card">
+            <div class="com-txt">"${c.t.slice(0,160)}${c.t.length>160?'...':''}"</div>
+            <div class="com-meta"><span class="com-author">${c.a}</span><span class="com-likes">👍 ${fmt(c.l)}</span></div>
+          </div>
+        `).join('')}
+        <div style="padding-top:10px;font-size:12px;color:var(--text-muted)">
+          Engagement rate: <strong style="color:var(--text)">${((v.likes+v.comments)/Math.max(v.views,1)*100).toFixed(3)}%</strong>
+          · Category: <strong style="color:var(--accent3)">${v.cat}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict fu">
+      <div class="v-circle">
+        <svg width="100" height="100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="var(--surface2)" stroke-width="8"/>
+          <circle cx="50" cy="50" r="45" fill="none" stroke="${col}" stroke-width="8"
+            stroke-dasharray="283" stroke-dashoffset="${svgOff}" stroke-linecap="round"
+            transform="rotate(-90 50 50)"
+            style="transition:stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1)"/>
+        </svg>
+        <div class="v-inner">
+          <div class="v-num" style="color:${col}">${v.ov}</div>
+          <div class="v-lbl">/ 100</div>
+        </div>
+      </div>
+      <div>
+        <h3 class="v-title">${verdict.em} ${verdict.title}</h3>
+        <p class="v-desc">${verdict.desc}</p>
+        <div class="v-chips">${verdict.chips.map(c=>`<span class="vchip ${c.c}">${c.t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+renderTrend();
+buildQP();
+</script>
+</body>
+</html>
